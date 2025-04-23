@@ -1,2 +1,8 @@
-### Hexlet tests and linter status:
-[![Actions Status](https://github.com/plaatos/devops-for-programmers-project-76/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/plaatos/devops-for-programmers-project-76/actions)
+# DevOps Project Setup
+
+## Подготовка серверов
+1. Установите зависимости: `make install_deps`
+2. Запустите подготовку: `make prepare`
+
+## Переменные
+- `ansible/inventory.ini`: укажите реальные IP-адреса серверов.

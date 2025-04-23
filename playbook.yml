@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install Python and pip using apt
+      apt:
+        name:
+          - python3
+          - python3-pip
+        state: present
+        update_cache: yes
+
+    - name: Ensure pip is installed
+      command: python3 -m ensurepip
+      args:
+        creates: /usr/bin/pip3
+
+  roles:
+    - geerlingguy.docker
