@@ -30,3 +30,19 @@ restart:
 # Быстрая проверка доступности Redmine
 test:
 	ansible all -i ansible/inventory.ini -m uri -a "url=http://localhost:3000 return_content=yes"
+	
+# Зашифровать файл
+encrypt_vault:
+	ansible-vault encrypt ansible/group_vars/vault.yml
+
+# Расшифровать файл
+decrypt_vault:
+	ansible-vault decrypt ansible/group_vars/vault.yml
+
+# Редактировать зашифрованный файл
+edit_vault:
+	ansible-vault edit ansible/group_vars/vault.yml
+
+# Просмотреть зашифрованный файл
+view_vault:
+	ansible-vault view ansible/group_vars/vault.yml
