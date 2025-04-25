@@ -8,7 +8,7 @@ prepare: install_deps
 
 # Деплой Redmine (запуск redmin.yml)
 deploy: install_deps
-	ansible-playbook -i ansible/inventory.ini redmin.yml
+	ansible-playbook -i ansible/inventory.ini redmine.yml
 
 # Полная установка (подготовка + деплой)
 full_setup: prepare deploy

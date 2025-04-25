@@ -20,6 +20,12 @@
         - "{{ redmine_data_dir }}"
         - "{{ mysql_data_dir }}"
 
+    - name: Create a custom Docker network if it doesn't exist
+      docker_network:
+        name: redmine_network
+        driver: bridge
+        state: present
+
     - name: Pull MySQL image
       docker_image:
         name: mysql:8.0
@@ -65,9 +71,3 @@
         networks:
           - name: redmine_network
         restart_policy: always
-
-    - name: Create a custom Docker network if it doesn't exist
-      docker_network:
-        name: redmine_network
-        driver: bridge
-        state: present
