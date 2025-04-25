@@ -4,11 +4,11 @@ install_deps:
 
 # Подготовка серверов (полная подготовка)
 prepare: install_deps
-	ansible-playbook -i ansible/inventory.ini playbook.yml
+	ansible-playbook -i ansible/inventory.ini playbook.yml --ask-vault-pass
 
 # Деплой Redmine (запуск redmin.yml)
 deploy: install_deps
-	ansible-playbook -i ansible/inventory.ini redmine.yml
+	ansible-playbook -i ansible/inventory.ini redmine.yml --ask-vault-pass
 
 # Полная установка (подготовка + деплой)
 full_setup: prepare deploy
@@ -46,3 +46,4 @@ edit_vault:
 # Просмотреть зашифрованный файл
 view_vault:
 	ansible-vault view ansible/group_vars/vault.yml
+	

@@ -1,16 +1,23 @@
 ---
 - name: Deploy Redmine with MySQL using Docker and Ansible
-  hosts: all
+  hosts: webservers
   become: yes
+  vars_files:  
+    - ansible/group_vars/vault.yml  
   vars:
-    mysql_root_password: "{{ mysql_root_password }}"
-    redmine_db_password: "{{ redmine_db_password }}"
-    redmine_secret_key_base: "{{ redmine_secret_key_base }}"
-    redmine_data_dir: "{{ redmine_data_dir }}"
-    mysql_data_dir: "{{ mysql_data_dir }}"
-    
-    
+    mysql_root_password: "{{ vault_mysql_root_password }}"
+    redmine_db_password: "{{ vault_redmine_db_password }}"
+    redmine_secret_key_base: "{{ vault_redmine_secret_key_base }}"
+    redmine_data_dir: "/opt/redmine/data"
+    mysql_data_dir: "/opt/redmine/mysql"
+        
   tasks:
+    - name: Debug variables
+      debug:
+        msg:
+          - "mysql_root_password: {{ mysql_root_password }}"
+          - "vault_mysql_root_password: {{ vault_mysql_root_password }}"
+      
     - name: Ensure directories for data persistence exist
       file:
         path: "{{ item }}"
