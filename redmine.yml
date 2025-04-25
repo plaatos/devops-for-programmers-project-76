@@ -3,11 +3,13 @@
   hosts: all
   become: yes
   vars:
-    mysql_root_password: "examplekey"
-    redmine_db_password: "examplekey"
-    redmine_secret_key_base: "supersecretkey"
-    redmine_data_dir: "/opt/redmine/data"
-    mysql_data_dir: "/opt/redmine/mysql"
+    mysql_root_password: "{{ mysql_root_password }}"
+    redmine_db_password: "{{ redmine_db_password }}"
+    redmine_secret_key_base: "{{ redmine_secret_key_base }}"
+    redmine_data_dir: "{{ redmine_data_dir }}"
+    mysql_data_dir: "{{ mysql_data_dir }}"
+    
+    
   tasks:
     - name: Ensure directories for data persistence exist
       file:
