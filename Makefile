@@ -46,4 +46,8 @@ edit_vault:
 # Просмотреть зашифрованный файл
 view_vault:
 	ansible-vault view ansible/group_vars/vault.yml
+
+#Мониторинг
+deploy_monitoring: install_deps
+	ansible-playbook -i ansible/inventory.ini monitoring.yml --ask-vault-pass
 	
