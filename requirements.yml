@@ -1,7 +1,0 @@
-collections:
-  - name: datadog.dd
-  - name: community.general  # для совместимости
-  - name: community.docker
-roles:
-  - name: geerlingguy.docker
-    version: 7.4.7
