@@ -7,7 +7,6 @@
   tasks:
     - name: Install Datadog collection
       ansible.builtin.command: ansible-galaxy collection install datadog.dd
-      delegate_to: localhost
 
     - name: Import Datadog Agent role
       import_role:

@@ -51,6 +51,3 @@ view_vault:
 deploy_monitoring: install_deps
 	ansible-playbook -i ansible/inventory.ini monitoring.yml --ask-vault-pass
 	
-code-setup:
-    ansible-galaxy role install -r ansible/requirements.yml
-	
