@@ -1,20 +1,20 @@
 ---
 - hosts: all
-  become: yes
+  name: "Prepare servers with Docker and dependencies"
+  become: true
   tasks:
     - name: Install Python and pip using apt
-      apt:
+      ansible.builtin.apt:
         name:
           - python3
           - python3-pip
         state: present
-        update_cache: yes
+        update_cache: true
 
     - name: Ensure pip is installed
-      command: python3 -m ensurepip
+      ansible.builtin.command: python3 -m ensurepip
       args:
         creates: /usr/bin/pip3
 
   roles:
     - geerlingguy.docker
-    
