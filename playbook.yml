@@ -1,6 +1,6 @@
 ---
-- hosts: all
-  name: "Prepare servers with Docker and dependencies"
+- name: "Prepare servers with Docker and dependencies"
+  hosts: all
   become: true
   tasks:
     - name: Install Python and pip using apt
