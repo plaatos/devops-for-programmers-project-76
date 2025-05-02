@@ -1,4 +1,0 @@
-vault_mysql_root_password: "mock-root-password"
-vault_redmine_db_password: "mock-db-password"
-vault_redmine_secret_key_base: "mock-secret-key-base"
-vault_datadog_api_key: "mock-datadog-api-key"
