@@ -22,26 +22,26 @@
 
 - name: "Развертывание Redmine с MySQL"
   hosts: webservers
-  become: yes
+  become: true
   tags: ["redmine"]
-  vars_files:  
-    - group_vars/webservers/vault.yml  
+  vars_files:
+    - group_vars/webservers/vault.yml
   vars:
     mysql_root_password: "{{ vault_mysql_root_password }}"
     redmine_db_password: "{{ vault_redmine_db_password }}"
     redmine_secret_key_base: "{{ vault_redmine_secret_key_base }}"
     redmine_data_dir: "/opt/redmine/data"
     mysql_data_dir: "/opt/redmine/mysql"
-        
+
   tasks:
     - name: Debug variables
-      debug:
+      ansible.builtin.debug:
         msg:
           - "mysql_root_password: {{ mysql_root_password }}"
           - "vault_mysql_root_password: {{ vault_mysql_root_password }}"
-      
+
     - name: Ensure directories for data persistence exist
-      file:
+      ansible.builtin.file:
         path: "{{ item }}"
         state: directory
         owner: "{{ ansible_user }}"
@@ -52,18 +52,18 @@
         - "{{ mysql_data_dir }}"
 
     - name: Create a custom Docker network if it doesn't exist
-      docker_network:
+      community.docker.docker_network:
         name: redmine_network
         driver: bridge
         state: present
 
     - name: Pull MySQL image
-      docker_image:
+      community.docker.docker_image:
         name: mysql:8.0
         source: pull
 
     - name: Start MySQL container
-      docker_container:
+      community.docker.docker_container:
         name: redmine_mysql
         image: mysql:8.0
         env:
@@ -78,7 +78,7 @@
         restart_policy: always
 
     - name: Pull Redmine image
-      docker_image:
+      community.docker.docker_image:
         name: redmine:latest
         source: pull
 
@@ -91,7 +91,7 @@
         group: "{{ ansible_user }}"
 
     - name: Start Redmine container
-      docker_container:
+      community.docker.docker_container:
         name: redmine_app
         image: redmine:latest
         ports:
@@ -105,7 +105,7 @@
 
 - name: "Настройка мониторинга через Datadog"
   hosts: webservers
-  become: yes
+  become: true
   tags: ["monitoring"]
   vars_files:
     - group_vars/webservers/vault.yml
@@ -115,14 +115,14 @@
       delegate_to: localhost
 
     - name: Import Datadog Agent role
-      import_role:
+      ansible.builtin.import_role:
         name: datadog.dd.agent
       vars:
         datadog_api_key: "{{ vault_datadog_api_key }}"
         datadog_site: "datadoghq.com"  # или другой регион
         datadog_checks:
           http_check:
-            init_config:
+            init_config: null
             instances:
               - name: "Redmine Health Check"
                 url: "http://localhost:{{ redmine_port }}"
@@ -130,4 +130,3 @@
                 check_certificate_expiration: false
                 tags:
                   - "service:redmine"
-
