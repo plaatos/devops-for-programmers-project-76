@@ -15,21 +15,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Vault password
+      - name: Replace vault.yml with mock version
         run: |
-          set +x
-          if [ -z "$ANSIBLE_VAULT_PASSWORD" ]; then
-            echo "❌ Error: ANSIBLE_VAULT_PASSWORD is empty or not set!"
-            exit 1
-          else
-            echo "✅ ANSIBLE_VAULT_PASSWORD is set."
-          fi
-        env:
-          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+          cp group_vars/webservers/vault.yml.mock group_vars/webservers/vault.yml
+          echo "✅ Replaced vault.yml with mock version for testing"
 
       - name: Hexlet project check
         uses: hexlet/project-action@release
         with:
           hexlet-id: ${{ secrets.HEXLET_ID }}
-        env:
-          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
