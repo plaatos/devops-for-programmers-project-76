@@ -1,7 +1,8 @@
 ---
-- name: "Prepare servers with Docker and dependencies"
+- name: "Подготовка серверов (установка Docker и зависимостей)"
   hosts: all
   become: true
+  tags: ["prepare"]
   tasks:
     - name: Install Python and pip using apt
       ansible.builtin.apt:
@@ -18,3 +19,115 @@
 
   roles:
     - geerlingguy.docker
+
+- name: "Развертывание Redmine с MySQL"
+  hosts: webservers
+  become: yes
+  tags: ["redmine"]
+  vars_files:  
+    - group_vars/webservers/vault.yml  
+  vars:
+    mysql_root_password: "{{ vault_mysql_root_password }}"
+    redmine_db_password: "{{ vault_redmine_db_password }}"
+    redmine_secret_key_base: "{{ vault_redmine_secret_key_base }}"
+    redmine_data_dir: "/opt/redmine/data"
+    mysql_data_dir: "/opt/redmine/mysql"
+        
+  tasks:
+    - name: Debug variables
+      debug:
+        msg:
+          - "mysql_root_password: {{ mysql_root_password }}"
+          - "vault_mysql_root_password: {{ vault_mysql_root_password }}"
+      
+    - name: Ensure directories for data persistence exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0750'
+      loop:
+        - "{{ redmine_data_dir }}"
+        - "{{ mysql_data_dir }}"
+
+    - name: Create a custom Docker network if it doesn't exist
+      docker_network:
+        name: redmine_network
+        driver: bridge
+        state: present
+
+    - name: Pull MySQL image
+      docker_image:
+        name: mysql:8.0
+        source: pull
+
+    - name: Start MySQL container
+      docker_container:
+        name: redmine_mysql
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+          MYSQL_DATABASE: redmine
+          MYSQL_USER: redmine
+          MYSQL_PASSWORD: "{{ redmine_db_password }}"
+        volumes:
+          - "{{ mysql_data_dir }}:/var/lib/mysql"
+        networks:
+          - name: redmine_network
+        restart_policy: always
+
+    - name: Pull Redmine image
+      docker_image:
+        name: redmine:latest
+        source: pull
+
+    - name: Сгенерировать .env файл для Redmine
+      ansible.builtin.template:
+        src: templates/redmine.env.j2
+        dest: /opt/redmine/.env
+        mode: '0640'
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: Start Redmine container
+      docker_container:
+        name: redmine_app
+        image: redmine:latest
+        ports:
+          - "{{ redmine_port }}:3000"
+        env_file: /opt/redmine/.env
+        volumes:
+          - "{{ redmine_data_dir }}:/usr/src/redmine/files"
+        networks:
+          - name: redmine_network
+        restart_policy: always
+
+- name: "Настройка мониторинга через Datadog"
+  hosts: webservers
+  become: yes
+  tags: ["monitoring"]
+  vars_files:
+    - group_vars/webservers/vault.yml
+  tasks:
+    - name: Install Datadog collection
+      ansible.builtin.command: ansible-galaxy collection install datadog.dd
+      delegate_to: localhost
+
+    - name: Import Datadog Agent role
+      import_role:
+        name: datadog.dd.agent
+      vars:
+        datadog_api_key: "{{ vault_datadog_api_key }}"
+        datadog_site: "datadoghq.com"  # или другой регион
+        datadog_checks:
+          http_check:
+            init_config:
+            instances:
+              - name: "Redmine Health Check"
+                url: "http://localhost:{{ redmine_port }}"
+                collect_response_time: true
+                check_certificate_expiration: false
+                tags:
+                  - "service:redmine"
+
