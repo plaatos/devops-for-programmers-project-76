@@ -24,8 +24,13 @@
   hosts: webservers
   become: true
   tags: ["redmine"]
-  vars_files:
-    - group_vars/webservers/vault.yml
+  pre_tasks:
+    - name: Загрузить vault.yml, если он существует
+      ansible.builtin.include_vars:
+        file: group_vars/webservers/vault.yml
+      ignore_errors: yes
+      no_log: true
+
   vars:
     mysql_root_password: "{{ vault_mysql_root_password | default('mock-root-password') }}"
     redmine_db_password: "{{ vault_redmine_db_password | default('mock-db-password') }}"
@@ -38,7 +43,7 @@
       ansible.builtin.debug:
         msg:
           - "mysql_root_password: {{ mysql_root_password }}"
-          - "vault_mysql_root_password: {{ vault_mysql_root_password }}"
+          - "vault_mysql_root_password: {{ hostvars['localhost'].get('vault_mysql_root_password', 'not defined') }}"
 
     - name: Ensure directories for data persistence exist
       ansible.builtin.file:
@@ -107,9 +112,13 @@
   hosts: webservers
   become: true
   tags: ["monitoring"]
-  vars_files:
-    - group_vars/webservers/vault.yml
   pre_tasks:
+    - name: Загрузить vault.yml, если он существует
+      ansible.builtin.include_vars:
+        file: group_vars/webservers/vault.yml
+      ignore_errors: yes
+      no_log: true
+
     - name: Set Datadog API key with default if missing
       ansible.builtin.set_fact:
         datadog_api_key: "{{ vault_datadog_api_key | default('mock-datadog-api-key') }}"
