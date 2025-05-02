@@ -15,28 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Vault password
+      - name: Set up Vault password (via env var)
         run: |
-          set +x  # Скрываем вывод команды echo для безопасности
-          echo "$ANSIBLE_VAULT_PASSWORD" > vault-pass.txt
-          chmod 600 vault-pass.txt
-          echo "export ANSIBLE_VAULT_PASSWORD_FILE=vault-pass.txt" >> $GITHUB_ENV
-        env:
-          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-
-      - name: Validate vault-pass.txt exists and is not empty
-        run: |
-          if [ ! -f vault-pass.txt ]; then
-            echo "❌ Error: File 'vault-pass.txt' does NOT exist!"
-            exit 1
-          elif [ ! -s vault-pass.txt ]; then
-            echo "❌ Error: File 'vault-pass.txt' is empty!"
+          set +x
+          if [ -z "$ANSIBLE_VAULT_PASSWORD" ]; then
+            echo "❌ Error: ANSIBLE_VAULT_PASSWORD is empty or not set!"
             exit 1
           else
-            echo "✅ File 'vault-pass.txt' exists and is not empty."
-            echo "📄 Contents of vault-pass.txt:"
-            cat vault-pass.txt
+            echo "✅ ANSIBLE_VAULT_PASSWORD is set."
+            echo "export ANSIBLE_VAULT_PASSWORD=$ANSIBLE_VAULT_PASSWORD" >> $GITHUB_ENV
           fi
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
 
       - name: Hexlet project check
         uses: hexlet/project-action@release
