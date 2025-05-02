@@ -15,36 +15,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Vault password file
+      - name: Set up Vault password
         run: |
           set +x
           if [ -z "$ANSIBLE_VAULT_PASSWORD" ]; then
             echo "❌ Error: ANSIBLE_VAULT_PASSWORD is empty or not set!"
             exit 1
           else
-            echo "$ANSIBLE_VAULT_PASSWORD" > vault-pass.txt
-            chmod 600 vault-pass.txt
-            echo "✅ Created vault-pass.txt"
+            echo "✅ ANSIBLE_VAULT_PASSWORD is set."
           fi
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-
-      - name: Validate vault-pass.txt exists and is not empty
-        run: |
-          if [ ! -f vault-pass.txt ]; then
-            echo "❌ File 'vault-pass.txt' does NOT exist!"
-            exit 1
-          elif [ ! -s vault-pass.txt ]; then
-            echo "❌ File 'vault-pass.txt' is empty!"
-            exit 1
-          else
-            echo "📄 Contents of vault-pass.txt:"
-            cat vault-pass.txt
-          fi
 
       - name: Hexlet project check
         uses: hexlet/project-action@release
         with:
           hexlet-id: ${{ secrets.HEXLET_ID }}
         env:
-          ANSIBLE_VAULT_PASSWORD_FILE: /project/vault-pass.txt
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
