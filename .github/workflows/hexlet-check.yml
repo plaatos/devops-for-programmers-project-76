@@ -17,6 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up Vault password
+        run: echo "$ANSIBLE_VAULT_PASSWORD" > vault-pass.txt
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
 
       - name: Hexlet project check
         uses: hexlet/project-action@release
