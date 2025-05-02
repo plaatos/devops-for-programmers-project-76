@@ -112,6 +112,8 @@
   tasks:
     - name: Install Datadog collection
       ansible.builtin.command: ansible-galaxy collection install datadog.dd
+      args:
+        creates: "/home/{{ ansible_user }}/.ansible/collections/ansible_collections/datadog/dd"
       delegate_to: localhost
 
     - name: Import Datadog Agent role
@@ -119,7 +121,7 @@
         name: datadog.dd.agent
       vars:
         datadog_api_key: "{{ vault_datadog_api_key }}"
-        datadog_site: "datadoghq.com"  # или другой регион
+        datadog_site: "datadoghq.com"
         datadog_checks:
           http_check:
             init_config: null
