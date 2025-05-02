@@ -28,7 +28,7 @@
     - name: Загрузить vault.yml, если он существует
       ansible.builtin.include_vars:
         file: group_vars/webservers/vault.yml
-      ignore_errors: yes
+      failed_when: false
       no_log: true
 
   vars:
@@ -116,7 +116,7 @@
     - name: Загрузить vault.yml, если он существует
       ansible.builtin.include_vars:
         file: group_vars/webservers/vault.yml
-      ignore_errors: yes
+      failed_when: false
       no_log: true
 
     - name: Set Datadog API key with default if missing
