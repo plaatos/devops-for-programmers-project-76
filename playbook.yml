@@ -39,12 +39,6 @@
     mysql_data_dir: "/opt/redmine/mysql"
 
   tasks:
-    - name: Debug variables
-      ansible.builtin.debug:
-        msg:
-          - "mysql_root_password: {{ mysql_root_password }}"
-          - "vault_mysql_root_password: {{ hostvars['localhost'].get('vault_mysql_root_password', 'not defined') }}"
-
     - name: Ensure directories for data persistence exist
       ansible.builtin.file:
         path: "{{ item }}"
