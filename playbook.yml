@@ -45,7 +45,7 @@
         state: directory
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
-        mode: '0750'
+        mode: '750'
       loop:
         - "{{ redmine_data_dir }}"
         - "{{ mysql_data_dir }}"
@@ -85,7 +85,7 @@
       ansible.builtin.template:
         src: templates/redmine.env.j2
         dest: /opt/redmine/.env
-        mode: '0640'
+        mode: '640'
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
 
