@@ -31,13 +31,6 @@
       failed_when: false
       no_log: true
 
-  vars:
-    mysql_root_password: "{{ vault_mysql_root_password | default('mock-root-password') }}"
-    redmine_db_password: "{{ vault_redmine_db_password | default('mock-db-password') }}"
-    redmine_secret_key_base: "{{ vault_redmine_secret_key_base | default('mock-secret-key-base') }}"
-    redmine_data_dir: "/opt/redmine/data"
-    mysql_data_dir: "/opt/redmine/mysql"
-
   tasks:
     - name: Ensure directories for data persistence exist
       ansible.builtin.file:
@@ -113,10 +106,6 @@
       failed_when: false
       no_log: true
 
-    - name: Set Datadog API key with default if missing
-      ansible.builtin.set_fact:
-        datadog_api_key: "{{ vault_datadog_api_key | default('mock-datadog-api-key') }}"
-
   tasks:
     - name: Install Datadog collection
       ansible.builtin.command: ansible-galaxy collection install datadog.dd
@@ -127,16 +116,3 @@
     - name: Import Datadog Agent role
       ansible.builtin.import_role:
         name: datadog.dd.agent
-      vars:
-        datadog_api_key: "{{ hostvars['localhost']['datadog_api_key'] }}"
-        datadog_site: "datadoghq.com"
-        datadog_checks:
-          http_check:
-            init_config: null
-            instances:
-              - name: "Redmine Health Check"
-                url: "http://localhost:{{ redmine_port }}"
-                collect_response_time: true
-                check_certificate_expiration: false
-                tags:
-                  - "service:redmine"

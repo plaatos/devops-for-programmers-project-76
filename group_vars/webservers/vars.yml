@@ -3,3 +3,22 @@ docker_users:
 
 # Параметры Redmine
 redmine_port: 3000
+
+mysql_root_password: "{{ vault_mysql_root_password | default('mock-root-password') }}"
+redmine_db_password: "{{ vault_redmine_db_password | default('mock-db-password') }}"
+redmine_secret_key_base: "{{ vault_redmine_secret_key_base | default('mock-secret-key-base') }}"
+redmine_data_dir: "/opt/redmine/data"
+mysql_data_dir: "/opt/redmine/mysql"
+
+datadog_api_key: "{{ vault_datadog_api_key | default('mock-datadog-api-key') }}"
+datadog_site: "datadoghq.com"
+datadog_checks:
+  http_check:
+    init_config: null
+    instances:
+      - name: "Redmine Health Check"
+        url: "http://localhost:{{ redmine_port }}"
+        collect_response_time: true
+        check_certificate_expiration: false
+        tags:
+          - "service:redmine"
