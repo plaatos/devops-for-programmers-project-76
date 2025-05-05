@@ -24,12 +24,6 @@
   hosts: webservers
   become: true
   tags: ["redmine"]
-  pre_tasks:
-    - name: Загрузить vault.yml, если он существует
-      ansible.builtin.include_vars:
-        file: group_vars/webservers/vault.yml
-      failed_when: false
-      no_log: true
 
   tasks:
     - name: Ensure directories for data persistence exist
@@ -99,12 +93,6 @@
   hosts: webservers
   become: true
   tags: ["monitoring"]
-  pre_tasks:
-    - name: Загрузить vault.yml, если он существует
-      ansible.builtin.include_vars:
-        file: group_vars/webservers/vault.yml
-      failed_when: false
-      no_log: true
 
   tasks:
     - name: Install Datadog collection
